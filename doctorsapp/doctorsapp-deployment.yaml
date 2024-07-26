@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doctorsapp
+spec:
+  replicas: 1  # Number of instances (pods) to run
+  selector:
+    matchLabels:
+      app: doctorsapp
+  template:
+    metadata:
+      labels:
+        app: doctorsapp
+    spec:
+      containers:
+      - name: doctorsapp
+        image: vamsikrishna765/doctorsapp:latest # Replace with your Docker image name
+        imagePullPolicy: IfNotPresent  
+        
+        ports:
+        - containerPort: 9106 # Port that your Spring Boot application listens on inside the container
+        env:   # Setting Enviornmental Variables
+          - name: DB_HOST   # Setting Database host address from configMap
+            valueFrom: 
+              configMapKeyRef:
+                name: db-conf  # name of configMap
+                key: host
+          - name: DB_NAME  # Setting Database name from configMap
+            valueFrom:
+              configMapKeyRef:
+                name: db-conf 
+                key: name
+          - name: MYSQL_ROOT_PASSWORD # Setting Root Password of mysql From a 'Secret'
+            valueFrom:
+              secretKeyRef:
+                name: db-root-credentials # Name of the 'Secret'
+                key: password   # 'key' inside the Secret which contains required 'value'
